@@ -1,43 +1,41 @@
-const Recipe = require("../models/Recipe");
+const Post = require("../models/Post");
 
 module.exports = {
   Query: {
-    async recipe(_, { ID }) {
-      return await Recipe.findById(ID);
+    async Post(_, { ID }) {
+      return await Post.findById(ID);
     },
-    async getRecipes(_, { amount }) {
-      return await Recipe.find().sort({ createdAt: -1 }).limit(amount);
+    async getPosts(_, { amount }) {
+      return await Post.find().sort({ createdAt: -1 }).limit(amount);
     },
   },
   Mutation: {
-    async createRecipe(_, { recipeInput: { name, description } }) {
-      const createdRecipe = new Recipe({
-        name,
-        description,
+    async createPost(_, { PostInput: { author, description } }) {
+      const createdPost = new Post({
         createdAt: new Date().toISOString(),
-        thumbsUp: 0,
-        thumbsDown: 0,
+        description,
+        author,
       });
 
-      const res = await createdRecipe.save();
+      const res = await createdPost.save();
 
       return {
-        id: res.id,
+        id: res._id,
         ...res._doc,
       };
     },
-    async deleteRecipe(_, { ID }) {
-      const deletedRecipe = await Recipe.deleteOne({ _id: ID });
+    async deletePost(_, { ID }) {
+      const deletedPost = await Post.deleteOne({ _id: ID });
 
-      return deletedRecipe.deletedCount;
+      return deletedPost.deletedCount;
     },
-    async editRecipe(_, { ID, recipeInput: { name, description } }) {
-      const editedRecipe = await Recipe.updateOne(
+    async editPost(_, { ID, PostInput: { author, description } }) {
+      const editedPost = await Post.updateOne(
         { _id: ID },
-        { name, description }
+        { author, description }
       );
-      
-      return editedRecipe.modifiedCount;
+
+      return editedPost.modifiedCount;
     },
   },
 };
