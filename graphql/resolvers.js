@@ -5,8 +5,14 @@ module.exports = {
     async Post(_, { ID }) {
       return await Post.findById(ID);
     },
-    async getPosts(_, { amount }) {
-      return await Post.find().sort({ createdAt: -1 }).limit(amount);
+    async getPosts(_, { limit, offset }) {
+      const total = await Post.countDocuments();
+      const posts = await Post.find()
+        .sort({ createdAt: -1 })
+        .skip(offset)
+        .limit(limit);
+
+      return { posts, total };
     },
   },
   Mutation: {
@@ -29,11 +35,8 @@ module.exports = {
 
       return deletedPost.deletedCount;
     },
-    async editPost(_, { ID, PostInput: { author, description } }) {
-      const editedPost = await Post.updateOne(
-        { _id: ID },
-        { author, description }
-      );
+    async editPost(_, { ID, PostInput: { description } }) {
+      const editedPost = await Post.updateOne({ _id: ID }, { description });
 
       return editedPost.modifiedCount;
     },
